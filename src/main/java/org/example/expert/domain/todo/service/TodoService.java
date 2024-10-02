@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -48,11 +50,19 @@ public class TodoService {
         );
     }
 
-    public Page<TodoResponse> getTodos(int page, int size) {
+    public Page<TodoResponse> getTodos(int page, int size, String keyword, LocalDateTime startTime, LocalDateTime endTime) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
+        Page<Todo> todos = null;
 
+        if (keyword == null && startTime == null && endTime == null)
+            todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
+
+        if (keyword != null || startTime != null || endTime != null){
+            todos = todoRepository.searchTodos(keyword, startTime, endTime, pageable);
+        }
+
+        // Todo 엔티티를 TodoResponse로 변환
         return todos.map(todo -> new TodoResponse(
                 todo.getId(),
                 todo.getTitle(),
@@ -63,6 +73,7 @@ public class TodoService {
                 todo.getModifiedAt()
         ));
     }
+
 
     public TodoResponse getTodo(long todoId) {
         Todo todo = todoRepository.findByIdWithUser(todoId)
