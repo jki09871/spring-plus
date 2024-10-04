@@ -1,7 +1,6 @@
 package org.example.expert.config;
 
 import lombok.RequiredArgsConstructor;
-import org.example.expert.domain.user.enums.UserRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -18,7 +17,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
-    private final JwtFilter jwtSecurityFilter;
+    private final JwtSecurityFilter jwtSecurityFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

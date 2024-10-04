@@ -2,11 +2,11 @@ package org.example.expert.domain.todo.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.expert.domain.common.annotation.Auth;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
+import org.example.expert.domain.todo.dto.response.TodoSearchResults;
 import org.example.expert.domain.todo.service.TodoService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +38,19 @@ public class TodoController {
             @RequestParam(required = false)LocalDateTime endTime
             ) {
         return ResponseEntity.ok(todoService.getTodos(page, size, keyword, startTime, endTime));
+    }
+
+    @GetMapping("/todos/search")
+    public ResponseEntity<Page<TodoSearchResults>> getTodoSearchResults(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false, name = "title") String title,
+            @RequestParam(required = false)LocalDateTime startTime,
+            @RequestParam(required = false)LocalDateTime endTime,
+            @RequestParam(required = false) String nickname
+    ) {
+        System.out.println("title = " + title);
+        return ResponseEntity.ok(todoService.getTodoSearchResults(page, size, title, startTime, endTime, nickname));
     }
 
     @GetMapping("/todos/{todoId}")

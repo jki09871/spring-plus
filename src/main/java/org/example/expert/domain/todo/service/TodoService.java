@@ -3,13 +3,14 @@ package org.example.expert.domain.todo.service;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.client.WeatherClient;
 import org.example.expert.domain.common.dto.AuthUser;
-import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
+import org.example.expert.domain.todo.dto.response.TodoSearchResults;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoFindByIdWithUserRepository;
 import org.example.expert.domain.todo.repository.TodoRepository;
+import org.example.expert.domain.todo.repository.TodoSearchResultsRepository;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,8 @@ public class TodoService {
     private final WeatherClient weatherClient;
 
     private final TodoFindByIdWithUserRepository todoFindByIdWithUserRepository;
+
+    private final TodoSearchResultsRepository todoSearchResultsRepository;
 
     @Transactional
     public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
@@ -54,17 +57,18 @@ public class TodoService {
         );
     }
 
+    public Page<TodoSearchResults> getTodoSearchResults(int page, int size, String title, LocalDateTime startTime, LocalDateTime endTime, String nickname) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        return todoSearchResultsRepository.searchTodos(pageable, title, startTime, endTime, nickname);
+
+    }
+
     public Page<TodoResponse> getTodos(int page, int size, String keyword, LocalDateTime startTime, LocalDateTime endTime) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<Todo> todos = null;
+        Page<Todo> todos = todoRepository.searchTodos(keyword, startTime, endTime, pageable);
 
-        if (keyword == null && startTime == null && endTime == null)
-            todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
-
-        if (keyword != null || startTime != null || endTime != null) {
-            todos = todoRepository.searchTodos(keyword, startTime, endTime, pageable);
-        }
 
         // Todo 엔티티를 TodoResponse로 변환
         return todos.map(todo -> new TodoResponse(
