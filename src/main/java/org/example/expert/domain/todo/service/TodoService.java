@@ -32,6 +32,7 @@ public class TodoService {
 
     @Transactional
     public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
+        System.out.println("authUser = " + authUser);
         User user = User.fromAuthUser(authUser);
 
         String weather = weatherClient.getTodayWeather();
