@@ -49,7 +49,6 @@ public class TodoController {
             @RequestParam(required = false)LocalDateTime endTime,
             @RequestParam(required = false) String nickname
     ) {
-        System.out.println("title = " + title);
         return ResponseEntity.ok(todoService.getTodoSearchResults(page, size, title, startTime, endTime, nickname));
     }
 
