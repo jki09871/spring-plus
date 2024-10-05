@@ -1,6 +1,7 @@
 package org.example.expert.domain.todo.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.domain.todo.dto.response.QTodoSearchResults;
@@ -42,17 +43,15 @@ public class TodoSearchResultsRepositoryImpl implements TodoSearchResultsReposit
                         managerNicknameContains(nickname),
                         createdDateBetween(startTime, endTime)
                 )
+                .groupBy(todo.id)
                 .orderBy(todo.createdAt.desc())  // 최신순 정렬
                 .offset(pageable.getOffset())    // 페이징 처리
                 .limit(pageable.getPageSize())   // 페이징 처리
                 .fetch();                        // 결과 리스트로 가져오기
 
         long total = queryFactory
-                .select(todo.count())
+                .select(Wildcard.count)
                 .from(todo)
-                .leftJoin(todo.managers, manager)
-                .leftJoin(todo.comments, comment)
-                .leftJoin(todo.user, user)
                 .where(
                         titleContains(title),
                         managerNicknameContains(nickname),
