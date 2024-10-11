@@ -8,9 +8,7 @@ import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.dto.response.TodoSearchResults;
 import org.example.expert.domain.todo.entity.Todo;
-import org.example.expert.domain.todo.repository.TodoFindByIdWithUserRepository;
 import org.example.expert.domain.todo.repository.TodoRepository;
-import org.example.expert.domain.todo.repository.TodoSearchResultsRepository;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
 import org.springframework.data.domain.Page;
@@ -29,9 +27,6 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final WeatherClient weatherClient;
 
-    private final TodoFindByIdWithUserRepository todoFindByIdWithUserRepository;
-
-    private final TodoSearchResultsRepository todoSearchResultsRepository;
 
     @Transactional
     public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
@@ -60,7 +55,7 @@ public class TodoService {
     public Page<TodoSearchResults> getTodoSearchResults(int page, int size, String title, LocalDateTime startTime, LocalDateTime endTime, String nickname) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        return todoSearchResultsRepository.searchTodos(pageable, title, startTime, endTime, nickname);
+        return todoRepository.searchTodos(pageable, title, startTime, endTime, nickname);
 
     }
 
@@ -84,7 +79,9 @@ public class TodoService {
 
 
     public TodoResponse getTodo(long todoId) {
-        Todo todo = todoFindByIdWithUserRepository.findByIdWithUser(todoId);
+        Todo todo = todoRepository.findByIdWithUser(todoId).orElseThrow(
+                () -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")
+        );
 
 
         User user = todo.getUser();
